@@ -4,7 +4,7 @@ A full-stack house rental/booking platform: browse and post listings, book a
 property for a date range, take a personality quiz to find compatible
 roommates, view listings in 360°/VR, and chat with an AI assistant.
 
-# Link: https://smart-rent-woad.vercel.app/
+Link: https://smart-rent-woad.vercel.app/
 
 ```
 smartrent/
