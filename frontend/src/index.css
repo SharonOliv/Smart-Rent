@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@theme {
+  /* ---- Color tokens ---- */
+  --color-paper: #F2F0E6;
+  --color-paper-deep: #E9E5D6;
+  --color-ink: #16232B;
+  --color-ink-soft: #3A4750;
+  --color-brass: #C2873E;
+  --color-brass-light: #E0B274;
+  --color-blueprint: #3F5E73;
+  --color-blueprint-light: #6E8A9C;
+  --color-moss: #3F5D4E;
+  --color-moss-light: #6E8F7C;
+  --color-clay: #B14C3B;
+
+  /* ---- Type tokens ---- */
+  --font-display: "Fraunces", "Iowan Old Style", serif;
+  --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+/* Blueprint grid texture, used as a background utility */
+.bg-blueprint-grid {
+  background-image:
+    linear-gradient(var(--color-blueprint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-blueprint) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Visible keyboard focus ring everywhere, accessible by default */
+:focus-visible {
+  outline: 2px solid var(--color-brass);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
