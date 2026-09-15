@@ -13,6 +13,9 @@ const userSchema = new mongoose.Schema(
     personality: { type: String, default: "" }, // e.g. "ISTJ"
     resetPasswordTokenHash: { type: String, default: null },
     resetPasswordExpires: { type: Date, default: null },
+    isVerified: { type: Boolean, default: false },
+    verificationTokenHash: { type: String, default: null },
+    verificationExpires: { type: Date, default: null },
   },
   { timestamps: true }
 );

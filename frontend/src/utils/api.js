@@ -50,4 +50,9 @@ export const fetchMatches = () => api.get("/matches").then((r) => r.data);
 export const sendChatMessage = (message, history) =>
   api.post("/chat", { message, history }).then((r) => r.data);
 
+// ----Verify Email ----
+export const verifyEmail = (token) => api.get(`/auth/verify-email/${token}`).then((r) => r.data);
+export const resendVerification = (email) =>
+  api.post("/auth/resend-verification", { email }).then((r) => r.data);
+
 export default api;

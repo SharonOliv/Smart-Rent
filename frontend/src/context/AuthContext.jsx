@@ -49,7 +49,13 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const signup = useCallback(async (payload) => {
-    const { token: newToken, user: newUser } = await api.signup(payload);
+    // Account is unverified until the email link is clicked — no token yet.
+    const data = await api.signup(payload);
+    return data; // { message: "..." }
+  }, []);
+
+  const verifyEmail = useCallback(async (verifyToken) => {
+    const { token: newToken, user: newUser } = await api.verifyEmail(verifyToken);
     localStorage.setItem(TOKEN_KEY, newToken);
     setToken(newToken);
     setUser(newUser);
@@ -78,6 +84,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         signup,
+        verifyEmail,
         logout,
         refreshUser,
         setUser,

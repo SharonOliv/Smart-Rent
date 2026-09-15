@@ -24,6 +24,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import ReportIssue from "./pages/ReportIssue";
 import NotFound from "./pages/NotFound";
+import VerifyEmail from "./pages/VerifyEmail";
 
 const Layout = ({ children }) => (
   <div className="flex min-h-screen flex-col">
@@ -47,6 +48,7 @@ const App = () => (
         <Route path="/signup" element={<Layout><Signup /></Layout>} />
         <Route path="/forgot-password" element={<Layout><ForgotPassword /></Layout>} />
         <Route path="/reset-password" element={<Layout><ResetPassword /></Layout>} />
+        <Route path="/verify-email/:token" element={<Layout><VerifyEmail /></Layout>} />
         <Route path="/rent" element={<Layout><Rent /></Layout>} />
         <Route path="/about" element={<Layout><About /></Layout>} />
         <Route path="/contact" element={<Layout><Contact /></Layout>} />
