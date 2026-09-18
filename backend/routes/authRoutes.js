@@ -46,7 +46,22 @@ router.post("/signup", async (req, res) => {
 
     const existing = await User.findOne({ email: normalizedEmail });
     if (existing) {
-      return res.status(409).json({ message: "An account with that email already exists." });
+      if (existing.isVerified) {
+        return res.status(409).json({ message: "Email already in use" });
+      }
+
+      // Unverified — regenerate token and resend, don't block re-signup
+      const { rawToken, tokenHash } = makeToken();
+      existing.verificationTokenHash = tokenHash;
+      existing.verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      await existing.save();
+
+      const verifyUrl = `${process.env.FRONTEND_URL}/verify-email/${rawToken}`;
+      sendVerificationEmail(existing.email, verifyUrl).catch(err =>
+        console.error("Failed to send verification email:", err.message)
+      );
+
+      return res.status(200).json({ message: "Verification email resent. Check your inbox." });
     }
 
     const hashed = await bcrypt.hash(password, 10);

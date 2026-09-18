@@ -40,13 +40,13 @@ const Login = () => {
       <div className="rounded-2xl border border-ink/10 bg-paper p-7 shadow-sm">
         {error && <div className="mb-4"><Alert kind="error">{error}</Alert></div>}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Field label="Username">
+          <Field label="Email">
             <input
-              type="text"
+              type="email"
               className={inputClasses}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="e.g. sharon"
+              placeholder="e.g. sharon@smartrent.com"
               required
             />
           </Field>
