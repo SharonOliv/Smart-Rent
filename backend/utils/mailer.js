@@ -18,8 +18,9 @@
 //   });
 // }
 
+//------------SMTP email verification breaks after deploying it because of render security-------------
 // utils/mailer.js
-import nodemailer from "nodemailer";
+//import nodemailer from "nodemailer";
 
 // const transporter = nodemailer.createTransport({
 //   service: "gmail",
@@ -28,17 +29,17 @@ import nodemailer from "nodemailer";
 //     pass: process.env.EMAIL_PASS, // Gmail App Password, not your regular password
 //   },
 // });
-
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  family: 4, // forces IPv4, avoids the ENETUNREACH
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+//ipv4 trial to avoid the ENETUNREACH error, but it still fails to send email after deploying to render.com
+// const transporter = nodemailer.createTransport({
+//   host: "smtp.gmail.com",
+//   port: 465,
+//   secure: true,
+//   family: 4, // forces IPv4, avoids the ENETUNREACH
+//   auth: {
+//     user: process.env.EMAIL_USER,
+//     pass: process.env.EMAIL_PASS,
+//   },
+// });
 
 export async function sendVerificationEmail(toEmail, verificationLink) {
   await transporter.sendMail({
