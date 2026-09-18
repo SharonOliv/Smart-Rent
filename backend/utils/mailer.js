@@ -1,27 +1,18 @@
-import nodemailer from "nodemailer";
+//Resend is a transporter mail API
+//Nodemailer is a library , using which we write transporter code 
+//But companies use transactional email apis like Sendgrid, Mailgun, Postmark, Resend etc. to send emails
+//because sender domain has better reputation and ipv6 will not reject the request, just like it rejected the smpt port 587 request from nodemailer. So we use Resend here to send emails.
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // Gmail App Password — not your regular password
-  },
-});
+const { Resend } = require("resend");
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-export const sendVerificationEmail = async (to, verifyUrl) => {
-  await transporter.sendMail({
-    from: `"Smart Rent" <${process.env.EMAIL_USER}>`,
-    to,
-    subject: "Confirm your Smart Rent account",
-    html: `
-      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-        <h2>Welcome to Smart Rent</h2>
-        <p>Click the button below to confirm your email address and activate your account. This link expires in 24 hours.</p>
-        <p style="text-align:center; margin: 24px 0;">
-          <a href="${verifyUrl}" style="background:#C2873E;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;">Confirm email</a>
-        </p>
-        <p>Or paste this into your browser:<br>${verifyUrl}</p>
-      </div>
-    `,
+async function sendVerificationEmail(toEmail, verificationLink) {
+  await resend.emails.send({
+    from: "Smart Rent <onboarding@resend.dev>", // or your verified domain address
+    to: toEmail,
+    subject: "Verify your email",
+    html: `<p>Click <a href="${verificationLink}">here</a> to verify your account.</p>`,
   });
-};
+}
+
+module.exports = { sendVerificationEmail };
