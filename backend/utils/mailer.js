@@ -21,11 +21,22 @@
 // utils/mailer.js
 import nodemailer from "nodemailer";
 
+// const transporter = nodemailer.createTransport({
+//   service: "gmail",
+//   auth: {
+//     user: process.env.EMAIL_USER,
+//     pass: process.env.EMAIL_PASS, // Gmail App Password, not your regular password
+//   },
+// });
+
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  family: 4, // forces IPv4, avoids the ENETUNREACH
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // Gmail App Password, not your regular password
+    pass: process.env.EMAIL_PASS,
   },
 });
 
