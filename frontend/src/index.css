@@ -2,17 +2,17 @@
 
 @theme {
   /* ---- Color tokens ---- */
-  --color-paper: #F2F0E6;
-  --color-paper-deep: #E9E5D6;
-  --color-ink: #16232B;
-  --color-ink-soft: #3A4750;
-  --color-brass: #C2873E;
-  --color-brass-light: #E0B274;
-  --color-blueprint: #3F5E73;
-  --color-blueprint-light: #6E8A9C;
-  --color-moss: #3F5D4E;
+  --color-paper: #FFFFFF;
+  --color-paper-deep: #EAF4FE;   /* soft blue for cards/sections that need to stand out from white */
+  --color-ink: #384959;
+  --color-ink-soft: #52697F;       /* derived: darker than #6A89A7 so small text passes contrast */
+  --color-brass: #88BDF2;          /* accent (name kept so existing classes still work) */
+  --color-brass-light: #BDDDFC;
+  --color-blueprint: #6A89A7;
+  --color-blueprint-light: #8FA9C2; /* derived */
+  --color-moss: #3F5D4E;           /* kept: success state */
   --color-moss-light: #6E8F7C;
-  --color-clay: #B14C3B;
+  --color-clay: #B14C3B;           /* kept: error/danger state */
 
   /* ---- Type tokens ---- */
   --font-display: "Fraunces", "Iowan Old Style", serif;
@@ -30,7 +30,6 @@ body {
   font-family: var(--font-body);
 }
 
-/* Blueprint grid texture, used as a background utility */
 .bg-blueprint-grid {
   background-image:
     linear-gradient(var(--color-blueprint) 1px, transparent 1px),
@@ -38,9 +37,9 @@ body {
   background-size: 28px 28px;
 }
 
-/* Visible keyboard focus ring everywhere, accessible by default */
+/* Focus ring uses blueprint: the sky accent is too faint on a pale background */
 :focus-visible {
-  outline: 2px solid var(--color-brass);
+  outline: 2px solid var(--color-blueprint);
   outline-offset: 2px;
 }
 

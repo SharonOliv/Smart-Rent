@@ -20,7 +20,7 @@ const MyListings = () => {
     <div className="mx-auto max-w-4xl px-5 py-12 sm:px-0">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-brass">Owner dashboard</span>
+          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-brass">Hosting</span>
           <h1 className="mt-1 font-display text-4xl font-semibold text-ink">My listings</h1>
         </div>
         <Link to="/post">

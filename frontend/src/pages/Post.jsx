@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { ImagePlus } from "lucide-react";
 import { createProperty } from "../utils/api";
 import { Alert } from "../components/ui/Feedback";
 import Button from "../components/ui/Button";
 import Field, { inputClasses } from "../components/ui/Field";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Post = () => {
   const [property, setProperty] = useState({
@@ -20,6 +21,7 @@ const Post = () => {
   const [success, setSuccess] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
+  const { user, refreshListings } = useAuth();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -47,6 +49,7 @@ const Post = () => {
     setSubmitting(true);
     try {
       await createProperty(formData);
+      await refreshListings();
       setSuccess("Property posted successfully!");
       setProperty({ title: "", description: "", location: "", price: "", bedrooms: "", bathrooms: "" });
       setSelectedFiles([]);
@@ -60,9 +63,18 @@ const Post = () => {
 
   return (
     <div className="mx-auto max-w-2xl px-5 py-12 sm:px-0">
-      <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-brass">List a property</span>
+      <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-blueprint">List a property</span>
       <h1 className="mt-1 font-display text-4xl font-semibold text-ink">Post a property</h1>
       <p className="mt-2 text-ink-soft">Fill in the details below — it'll appear on the Rent page right away.</p>
+
+      {!user?.phone && (
+        <div className="mt-6">
+          <Alert kind="warning">
+            Add your mobile number in your <Link to="/profile" className="underline">profile</Link> before
+            listing a property, so tenants can reach you.
+          </Alert>
+        </div>
+      )}
 
       <div className="mt-8 rounded-2xl border border-ink/10 bg-paper p-7 shadow-sm">
         {error && <div className="mb-4"><Alert kind="error">{error}</Alert></div>}
@@ -101,10 +113,13 @@ const Post = () => {
           </Field>
 
           <div className="grid grid-cols-3 gap-4">
-            <Field label="Rent ($/mo)">
+            <Field label="Rent (₹/month)">
               <input
                 type="number"
                 name="price"
+                min="0"
+                step="500"
+                placeholder="e.g. 15000"
                 className={inputClasses}
                 value={property.price}
                 onChange={handleInputChange}
@@ -134,7 +149,7 @@ const Post = () => {
           <Field label="Photos">
             <label
               htmlFor="images"
-              className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-ink/25 px-4 py-6 text-sm text-ink-soft hover:border-brass hover:text-ink"
+              className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-ink/25 px-4 py-6 text-sm text-ink-soft hover:border-blueprint hover:text-ink"
             >
               <ImagePlus size={18} />
               {selectedFiles.length > 0 ? `${selectedFiles.length} photo(s) selected` : "Click to upload photos"}
@@ -149,7 +164,7 @@ const Post = () => {
             />
           </Field>
 
-          <Button type="submit" variant="primary" className="w-full" disabled={submitting}>
+          <Button type="submit" variant="primary" className="w-full" disabled={submitting || !user?.phone}>
             {submitting ? "Posting..." : "Post property"}
           </Button>
         </form>

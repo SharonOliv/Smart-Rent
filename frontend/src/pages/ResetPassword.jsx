@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { resetPassword } from "../utils/api";
 import { Alert } from "../components/ui/Feedback";
 import Button from "../components/ui/Button";
@@ -7,24 +7,26 @@ import Field, { inputClasses } from "../components/ui/Field";
 import PinMark from "../components/ui/PinMark";
 
 const ResetPassword = () => {
-  const location = useLocation();
+  const { token } = useParams();
   const navigate = useNavigate();
-  const [username, setUsername] = useState(location.state?.username || "");
-  const [token, setToken] = useState(location.state?.token || "");
   const [newPassword, setNewPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSubmitting(true);
     try {
-      const data = await resetPassword({ username: username.trim(), token: token.trim(), newPassword });
+      const data = await resetPassword({ token, newPassword });
       setMessage(data.message);
       setIsError(false);
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
       setMessage(err.response?.data?.message || "Could not reset password.");
       setIsError(true);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -37,12 +39,6 @@ const ResetPassword = () => {
       <div className="rounded-2xl border border-ink/10 bg-paper p-7 shadow-sm">
         {message && <div className="mb-4"><Alert kind={isError ? "error" : "success"}>{message}</Alert></div>}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Field label="Username">
-            <input className={inputClasses} value={username} onChange={(e) => setUsername(e.target.value)} required />
-          </Field>
-          <Field label="Reset token">
-            <input className={inputClasses} value={token} onChange={(e) => setToken(e.target.value)} required />
-          </Field>
           <Field label="New password">
             <input
               type="password"
@@ -53,7 +49,10 @@ const ResetPassword = () => {
               required
             />
           </Field>
-          <Button type="submit" variant="primary" className="w-full">Reset password</Button>
+          <Button type="submit" variant="primary" className="w-full" disabled={submitting}>
+            {submitting ? "Resetting..." : "Reset password"}
+          </Button>
+          <Link to="/login" className="block text-center text-sm text-ink-soft hover:text-ink">Back to login</Link>
         </form>
       </div>
     </div>

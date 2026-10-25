@@ -35,7 +35,7 @@ const Footer = () => (
           <h3 className="font-mono text-[11px] uppercase tracking-[0.12em] text-paper/50">Get in touch</h3>
           <ul className="mt-3 space-y-2 text-sm text-paper/70">
             <li>support@smartrent.com</li>
-            <li>+1-800-555-RENT</li>
+            <li>+91 98765 43210</li>
           </ul>
         </div>
       </div>

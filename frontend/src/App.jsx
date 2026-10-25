@@ -24,7 +24,8 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import ReportIssue from "./pages/ReportIssue";
 import NotFound from "./pages/NotFound";
-import VerifyEmail from "./pages/VerifyEmail";
+// EMAIL VERIFICATION (disabled): import VerifyEmail from "./pages/VerifyEmail";
+import BookingsReceived from "./pages/BookingsReceived";
 
 const Layout = ({ children }) => (
   <div className="flex min-h-screen flex-col">
@@ -47,8 +48,8 @@ const App = () => (
         <Route path="/login" element={<Layout><Login /></Layout>} />
         <Route path="/signup" element={<Layout><Signup /></Layout>} />
         <Route path="/forgot-password" element={<Layout><ForgotPassword /></Layout>} />
-        <Route path="/reset-password" element={<Layout><ResetPassword /></Layout>} />
-        <Route path="/verify-email/:token" element={<Layout><VerifyEmail /></Layout>} />
+        <Route path="/reset-password/:token" element={<Layout><ResetPassword /></Layout>} />
+        {/* EMAIL VERIFICATION (disabled): <Route path="/verify-email/:token" element={<Layout><VerifyEmail /></Layout>} /> */}
         <Route path="/rent" element={<Layout><Rent /></Layout>} />
         <Route path="/about" element={<Layout><About /></Layout>} />
         <Route path="/contact" element={<Layout><Contact /></Layout>} />
@@ -59,8 +60,9 @@ const App = () => (
 
         <Route path="/profile" element={<Layout><ProtectedRoute element={<Profile />} /></Layout>} />
         <Route path="/post" element={<Layout><ProtectedRoute element={<Post />} /></Layout>} />
-        <Route path="/my-bookings" element={<Layout><ProtectedRoute element={<MyBookings />} /></Layout>} />
         <Route path="/my-listings" element={<Layout><ProtectedRoute element={<MyListings />} /></Layout>} />
+        <Route path="/bookings-received" element={<Layout><ProtectedRoute element={<BookingsReceived />} /></Layout>} />
+        <Route path="/my-bookings" element={<Layout><ProtectedRoute element={<MyBookings />} /></Layout>} />
         <Route path="/matches" element={<Layout><ProtectedRoute element={<MatchesPage />} /></Layout>} />
 
         <Route path="*" element={<Layout><NotFound /></Layout>} />

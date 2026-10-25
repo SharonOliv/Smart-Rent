@@ -1,9 +1,12 @@
 import express from "express";
 import mongoose from "mongoose";
 import Property from "../models/Property.js";
-import { requireAuth } from "../middleware/auth.js";
 import upload from "../middleware/upload.js";
+import Booking from "../models/Booking.js";
+import { requireAuth, requirePhone } from "../middleware/auth.js";
 
+// Escape user input before using it in a regex
+const escapeRegex = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const router = express.Router();
 
 // GET /api/properties?location=&minPrice=&maxPrice=&available=&bedrooms=
@@ -12,7 +15,7 @@ router.get("/", async (req, res) => {
     const { location, minPrice, maxPrice, available, bedrooms } = req.query;
     const filter = {};
 
-    if (location) filter.location = { $regex: location, $options: "i" };
+    if (location) filter.location = { $regex: escapeRegex(location), $options: "i" };
     if (available !== undefined) filter.available = available === "true";
     if (bedrooms) filter.bedrooms = { $gte: Number(bedrooms) };
     if (minPrice || maxPrice) {
@@ -56,12 +59,16 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST /api/properties  (multipart: text fields + "images" files)
-router.post("/", requireAuth, upload.array("images", 8), async (req, res) => {
+router.post("/", requireAuth, requirePhone, upload.array("images", 8), async (req, res) => {
   try {
     const { title, description, location, price, bedrooms, bathrooms } = req.body;
 
     if (!title || !location || !price) {
       return res.status(400).json({ message: "title, location and price are required." });
+    }
+    const rent = Number(price);
+    if (!Number.isFinite(rent) || rent <= 0) {
+      return res.status(400).json({ message: "Enter a valid monthly rent in rupees." });
     }
 
     const imagePaths = (req.files || []).map((f) => `/uploads/${f.filename}`);
@@ -70,7 +77,7 @@ router.post("/", requireAuth, upload.array("images", 8), async (req, res) => {
       title,
       description: description || "",
       location,
-      price: Number(price),
+      price: rent,
       bedrooms: bedrooms ? Number(bedrooms) : 1,
       bathrooms: bathrooms ? Number(bathrooms) : 1,
       images: imagePaths,
@@ -96,7 +103,13 @@ router.put("/:id", requireAuth, upload.array("images", 8), async (req, res) => {
     if (title !== undefined) property.title = title;
     if (description !== undefined) property.description = description;
     if (location !== undefined) property.location = location;
-    if (price !== undefined) property.price = Number(price);
+    if (price !== undefined) {
+      const rent = Number(price);
+      if (!Number.isFinite(rent) || rent <= 0) {
+        return res.status(400).json({ message: "Enter a valid monthly rent in rupees." });
+      }
+      property.price = rent;
+    }
     if (bedrooms !== undefined) property.bedrooms = Number(bedrooms);
     if (bathrooms !== undefined) property.bathrooms = Number(bathrooms);
     if (available !== undefined) property.available = available === "true" || available === true;
@@ -119,6 +132,14 @@ router.delete("/:id", requireAuth, async (req, res) => {
     if (!property) return res.status(404).json({ message: "Property not found." });
     if (String(property.owner) !== String(req.user._id)) {
       return res.status(403).json({ message: "You can only delete your own listings." });
+    }
+    const active = await Booking.exists({
+      property: property._id,
+      status: "confirmed",
+      endDate: { $gt: new Date() },
+    });
+    if (active) {
+      return res.status(409).json({ message: "This listing has active bookings. Cancel them before deleting it." });
     }
     await property.deleteOne();
     res.json({ message: "Property deleted." });

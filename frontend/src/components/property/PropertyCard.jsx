@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
-import { MapPin, BedDouble, Bath } from "lucide-react";
+import { MapPin, BedDouble, Bath, Home } from "lucide-react";
+import { inr } from "../../utils/format";
 import { fileUrl } from "../../utils/api";
-import PinMark from "../ui/PinMark";
+// remove: import PinMark from "../ui/PinMark";
 
 const PropertyCard = ({ property, onBook }) => {
   const cover = property.images?.[0];
@@ -18,11 +19,12 @@ const PropertyCard = ({ property, onBook }) => {
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
-            <PinMark className="h-12 w-12 text-ink/15" />
+            {/* <PinMark className="h-12 w-12 text-ink/15" /> */}
+            <Home size={48} className="text-ink/15" />
           </div>
         )}
         <div className="absolute left-3 top-3 rounded-md bg-ink px-2.5 py-1 font-mono text-xs text-paper shadow">
-          ${property.price}<span className="text-paper/60">/mo</span>
+          {inr(property.price)}<span className="text-paper/60">/mo</span>
         </div>
         {!property.available && (
           <div className="absolute right-3 top-3 rounded-md bg-clay px-2.5 py-1 text-xs font-semibold text-paper">

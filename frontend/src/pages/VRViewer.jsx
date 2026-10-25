@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import "../polyfills";
 import * as PANOLENS from "panolens";
 
 window.process = { env: { NODE_ENV: "production" } };

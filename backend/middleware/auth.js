@@ -41,3 +41,15 @@ export const optionalAuth = async (req, _res, next) => {
   }
   next();
 };
+
+// Use after requireAuth: router.post("/", requireAuth, requireRole("Owner"), ...)
+export const requireRole = (...roles) => (req, res, next) =>
+  roles.includes(req.user?.role)
+    ? next()
+    : res.status(403).json({ message: `This action is only available to ${roles.join(" / ")} accounts.` });
+
+// Hosts must be reachable: require a saved phone number before posting a listing
+export const requirePhone = (req, res, next) =>
+  req.user?.phone
+    ? next()
+    : res.status(403).json({ message: "Add your mobile number in your profile before listing a property." });

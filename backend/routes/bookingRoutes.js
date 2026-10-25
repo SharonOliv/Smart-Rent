@@ -2,7 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import Booking from "../models/Booking.js";
 import Property from "../models/Property.js";
-import { requireAuth } from "../middleware/auth.js";
+import { requireAuth} from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -26,6 +26,9 @@ router.post("/", requireAuth, async (req, res) => {
 
     const property = await Property.findById(propertyId);
     if (!property) return res.status(404).json({ message: "Property not found." });
+    if (String(property.owner) === String(req.user._id)) {
+      return res.status(400).json({ message: "You can't book your own property." });
+    }
     if (!property.available) {
       return res.status(400).json({ message: "This property is not available for booking." });
     }
@@ -59,11 +62,25 @@ router.post("/", requireAuth, async (req, res) => {
   }
 });
 
-// GET /api/bookings/mine
+// GET /api/bookings/mine  - bookings I made as a tenant (includes the owner's contact)
 router.get("/mine", requireAuth, async (req, res) => {
   try {
     const bookings = await Booking.find({ tenant: req.user._id })
-      .populate("property")
+      .populate({ path: "property", populate: { path: "owner", select: "name username phone email" } })
+      .sort({ createdAt: -1 });
+    res.json(bookings);
+  } catch (err) {
+    res.status(500).json({ message: "Could not fetch bookings.", error: err.message });
+  }
+});
+
+// GET /api/bookings/received  - bookings on properties I own
+router.get("/received", requireAuth, async (req, res) => {
+  try {
+    const mine = await Property.find({ owner: req.user._id }).select("_id");
+    const bookings = await Booking.find({ property: { $in: mine.map((p) => p._id) } })
+      .populate("property", "title location price images")
+      .populate("tenant", "name username email phone")
       .sort({ createdAt: -1 });
     res.json(bookings);
   } catch (err) {
@@ -88,14 +105,24 @@ router.get("/property/:propertyId", requireAuth, async (req, res) => {
   }
 });
 
-// PUT /api/bookings/:id/cancel
+// PUT /api/bookings/:id/cancel  - the tenant, or the owner of that property
 router.put("/:id/cancel", requireAuth, async (req, res) => {
   try {
-    const booking = await Booking.findById(req.params.id);
-    if (!booking) return res.status(404).json({ message: "Booking not found." });
-    if (String(booking.tenant) !== String(req.user._id)) {
-      return res.status(403).json({ message: "You can only cancel your own bookings." });
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(404).json({ message: "Booking not found." });
     }
+    const booking = await Booking.findById(req.params.id).populate("property", "owner");
+    if (!booking) return res.status(404).json({ message: "Booking not found." });
+
+    const isTenant = String(booking.tenant) === String(req.user._id);
+    const isOwner = booking.property && String(booking.property.owner) === String(req.user._id);
+    if (!isTenant && !isOwner) {
+      return res.status(403).json({ message: "You can only cancel your own bookings or bookings on your listings." });
+    }
+    if (booking.status === "cancelled") {
+      return res.status(400).json({ message: "This booking is already cancelled." });
+    }
+
     booking.status = "cancelled";
     await booking.save();
     res.json(booking);

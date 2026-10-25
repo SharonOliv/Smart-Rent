@@ -6,10 +6,18 @@ import { updateProfile, fileUrl } from "../utils/api";
 import { Alert, Badge } from "../components/ui/Feedback";
 import Button from "../components/ui/Button";
 import Field, { inputClasses } from "../components/ui/Field";
+import ConnectionRequests from "../components/ConnectionRequests";
+
+const toForm = (u) => ({
+  name: u?.name || "",
+  email: u?.email || "",
+  phone: u?.phone || "",
+  petCertified: Boolean(u?.petCertified),
+});
 
 const Profile = () => {
-  const { user, setUser } = useAuth();
-  const [form, setForm] = useState({ name: "", email: "", phone: "", role: "Owner", petCertified: false });
+  const { user, setUser, hasListings } = useAuth();
+  const [form, setForm] = useState(toForm(user));
   const [isEditing, setIsEditing] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
@@ -18,15 +26,7 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      setForm({
-        name: user.name || "",
-        email: user.email || "",
-        phone: user.phone || "",
-        role: user.role || "Owner",
-        petCertified: Boolean(user.petCertified),
-      });
-    }
+    if (user) setForm(toForm(user));
   }, [user]);
 
   if (!user) return null;
@@ -42,6 +42,14 @@ const Profile = () => {
     if (file) setPreviewUrl(URL.createObjectURL(file));
   };
 
+  const handleCancel = () => {
+    setForm(toForm(user));
+    setSelectedFile(null);
+    setPreviewUrl("");
+    setError("");
+    setIsEditing(false);
+  };
+
   const handleSave = async () => {
     setError("");
     setSaving(true);
@@ -50,7 +58,6 @@ const Profile = () => {
       formData.append("name", form.name);
       formData.append("email", form.email);
       formData.append("phone", form.phone);
-      formData.append("role", form.role);
       formData.append("petCertified", form.petCertified);
       if (selectedFile) formData.append("profilePicture", selectedFile);
 
@@ -69,7 +76,7 @@ const Profile = () => {
 
   return (
     <div className="mx-auto max-w-2xl px-5 py-12 sm:px-0">
-      <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-brass">Account</span>
+      <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">Account</span>
       <h1 className="mt-1 font-display text-4xl font-semibold text-ink">Your profile</h1>
 
       <div className="mt-8 rounded-2xl border border-ink/10 bg-paper p-7 shadow-sm">
@@ -95,8 +102,8 @@ const Profile = () => {
             <p className="font-display text-xl font-semibold text-ink">{user.name || user.username}</p>
             <p className="text-sm text-ink-soft">@{user.username}</p>
             <div className="mt-1 flex gap-2">
-              <Badge tone="blueprint">{user.role}</Badge>
               {user.personality && <Badge tone="brass">{user.personality}</Badge>}
+              {hasListings && <Badge tone="blueprint">Host</Badge>}
             </div>
           </div>
         </div>
@@ -109,13 +116,19 @@ const Profile = () => {
             <input type="email" name="email" className={inputClasses} value={form.email} onChange={handleInputChange} disabled={!isEditing} />
           </Field>
           <Field label="Phone">
-            <input name="phone" className={inputClasses} value={form.phone} onChange={handleInputChange} disabled={!isEditing} />
-          </Field>
-          <Field label="Role">
-            <select name="role" className={inputClasses} value={form.role} onChange={handleInputChange} disabled={!isEditing}>
-              <option value="Owner">Owner</option>
-              <option value="Tenant">Tenant</option>
-            </select>
+            <input
+              name="phone"
+              type="tel"
+              inputMode="numeric"
+              maxLength={10}
+              pattern="[6-9][0-9]{9}"
+              title="Enter a 10-digit Indian mobile number"
+              placeholder="9876543210"
+              className={inputClasses}
+              value={form.phone}
+              onChange={handleInputChange}
+              disabled={!isEditing}
+            />
           </Field>
         </div>
 
@@ -125,7 +138,7 @@ const Profile = () => {
             checked={form.petCertified}
             disabled={!isEditing}
             onChange={(e) => setForm((p) => ({ ...p, petCertified: e.target.checked }))}
-            className="h-4 w-4 accent-brass"
+            className="h-4 w-4 accent-ink"
           />
           Pet certified
         </label>
@@ -133,7 +146,7 @@ const Profile = () => {
         <div className="mt-6 flex justify-end gap-2">
           {isEditing ? (
             <>
-              <Button variant="outline" onClick={() => setIsEditing(false)} disabled={saving}>Cancel</Button>
+              <Button variant="outline" onClick={handleCancel} disabled={saving}>Cancel</Button>
               <Button variant="primary" onClick={handleSave} disabled={saving}>{saving ? "Saving..." : "Save changes"}</Button>
             </>
           ) : (
@@ -142,13 +155,20 @@ const Profile = () => {
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2 border-t border-ink/10 pt-6">
-          <Button variant="outline" onClick={() => navigate(form.role === "Owner" ? "/post" : "/rent")}>
-            {form.role === "Owner" ? "Post a property" : "Browse rentals"}
-          </Button>
+          <Button variant="outline" onClick={() => navigate("/rent")}>Browse rentals</Button>
           <Button variant="outline" onClick={() => navigate("/my-bookings")}>My bookings</Button>
-          {form.role === "Owner" && <Button variant="outline" onClick={() => navigate("/my-listings")}>My listings</Button>}
+          <Button variant="outline" onClick={() => navigate("/matches")}>Roommate matches</Button>
+          <Button variant="outline" onClick={() => navigate("/post")}>List a property</Button>
+          {hasListings && (
+            <>
+              <Button variant="outline" onClick={() => navigate("/my-listings")}>My listings</Button>
+              <Button variant="outline" onClick={() => navigate("/bookings-received")}>Bookings received</Button>
+            </>
+          )}
         </div>
       </div>
+
+      <ConnectionRequests />
     </div>
   );
 };

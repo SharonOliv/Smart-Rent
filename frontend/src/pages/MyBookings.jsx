@@ -58,13 +58,21 @@ const MyBookings = () => {
               <div>
                 <h3 className="font-display text-lg font-semibold text-ink">{b.property?.title || "Listing removed"}</h3>
                 <p className="text-sm text-ink-soft">{b.property?.location}</p>
+                {b.property?.owner && (
+                  <p className="mt-1 text-sm text-ink-soft">
+                    Owner: {b.property.owner.name || b.property.owner.username}
+                    {b.property.owner.phone && (
+                      <> &middot; <a href={`tel:+91${b.property.owner.phone}`} className="hover:text-ink">+91 {b.property.owner.phone}</a></>
+                    )}
+                  </p>
+                )}
                 <p className="mt-1 font-mono text-xs text-ink-soft">
                   {formatDate(b.startDate)} &rarr; {formatDate(b.endDate)} &middot; ${b.totalPrice} total
                 </p>
               </div>
               <div className="flex items-center gap-3">
                 <Badge tone={b.status === "cancelled" ? "neutral" : "moss"}>{b.status}</Badge>
-                {b.status === "confirmed" && (
+                {b.status !== "cancelled" && (
                   <Button variant="danger" size="sm" onClick={() => handleCancel(b._id)}>Cancel</Button>
                 )}
               </div>

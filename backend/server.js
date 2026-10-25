@@ -11,6 +11,7 @@ import propertyRoutes from "./routes/propertyRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import matchRoutes from "./routes/matchRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
+import connectionRoutes from "./routes/connectionRoutes.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -31,6 +32,7 @@ app.use("/api/properties", propertyRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/matches", matchRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/connections", connectionRoutes);
 
 app.use("/api", (_req, res) => res.status(404).json({ message: "Not found." }));
 

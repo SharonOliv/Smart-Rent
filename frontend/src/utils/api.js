@@ -21,8 +21,8 @@ export const fileUrl = (path) => {
 export const signup = (data) => api.post("/auth/signup", data).then((r) => r.data);
 export const login = (data) => api.post("/auth/login", data).then((r) => r.data);
 export const fetchMe = () => api.get("/auth/me").then((r) => r.data);
-export const requestPasswordReset = (username) =>
-  api.post("/auth/forgot-password", { username }).then((r) => r.data);
+export const requestPasswordReset = (email) =>
+  api.post("/auth/forgot-password", { email }).then((r) => r.data);
 export const resetPassword = (data) => api.post("/auth/reset-password", data).then((r) => r.data);
 
 // ---- Profile ----
@@ -42,6 +42,7 @@ export const createProperty = (formData) =>
 export const createBooking = (data) => api.post("/bookings", data).then((r) => r.data);
 export const fetchMyBookings = () => api.get("/bookings/mine").then((r) => r.data);
 export const cancelBooking = (id) => api.put(`/bookings/${id}/cancel`).then((r) => r.data);
+export const fetchReceivedBookings = () => api.get("/bookings/received").then((r) => r.data);
 
 // ---- Matches ----
 export const fetchMatches = () => api.get("/matches").then((r) => r.data);
@@ -51,8 +52,17 @@ export const sendChatMessage = (message, history) =>
   api.post("/chat", { message, history }).then((r) => r.data);
 
 // ----Verify Email ----
-export const verifyEmail = (token) => api.get(`/auth/verify-email/${token}`).then((r) => r.data);
-export const resendVerification = (email) =>
-  api.post("/auth/resend-verification", { email }).then((r) => r.data);
+// EMAIL VERIFICATION (disabled)
+// export const verifyEmail = (token) => api.get(`/auth/verify-email/${token}`).then((r) => r.data);
+// export const resendVerification = (email) =>
+//   api.post("/auth/resend-verification", { email }).then((r) => r.data);
+
+// ---- Connections ----
+export const sendConnectionRequest = (toUserId) =>
+  api.post("/connections", { toUserId }).then((r) => r.data);
+export const fetchIncomingRequests = () => api.get("/connections/incoming").then((r) => r.data);
+export const fetchConnections = () => api.get("/connections/accepted").then((r) => r.data);
+export const respondToRequest = (id, action) =>
+  api.put(`/connections/${id}`, { action }).then((r) => r.data);
 
 export default api;

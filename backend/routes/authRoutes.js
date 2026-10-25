@@ -4,7 +4,8 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import User from "../models/User.js";
 import { requireAuth } from "../middleware/auth.js";
-import { sendVerificationEmail } from "../utils/mailer.js";
+// EMAIL VERIFICATION (disabled): import { sendVerificationEmail, sendPasswordResetEmail } from "../utils/mailer.js";
+import { sendPasswordResetEmail } from "../utils/mailer.js";
 
 const router = express.Router();
 
@@ -46,87 +47,91 @@ router.post("/signup", async (req, res) => {
 
     const existing = await User.findOne({ email: normalizedEmail });
     if (existing) {
-      if (existing.isVerified) {
-        return res.status(409).json({ message: "Email already in use" });
-      }
+      return res.status(409).json({ message: "Email already in use" });
 
-      // Unverified — regenerate token and resend, don't block re-signup
-      const { rawToken, tokenHash } = makeToken();
-      existing.verificationTokenHash = tokenHash;
-      existing.verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
-      await existing.save();
-
-      const verifyUrl = `${process.env.FRONTEND_URL}/verify-email/${rawToken}`;
-      sendVerificationEmail(existing.email, verifyUrl).catch(err =>
-        console.error("Failed to send verification email:", err.message)
-      );
-
-      return res.status(200).json({ message: "Verification email resent. Check your inbox." });
+      // EMAIL VERIFICATION (disabled): old behavior split verified vs unverified
+      // if (existing.isVerified) {
+      //   return res.status(409).json({ message: "Email already in use" });
+      // }
+      //
+      // // Unverified — regenerate token and resend, don't block re-signup
+      // const { rawToken, tokenHash } = makeToken();
+      // existing.verificationTokenHash = tokenHash;
+      // existing.verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      // await existing.save();
+      //
+      // const verifyUrl = `${process.env.FRONTEND_URL}/verify-email/${rawToken}`;
+      // sendVerificationEmail(existing.email, verifyUrl).catch(err =>
+      //   console.error("Failed to send verification email:", err.message)
+      // );
+      //
+      // return res.status(200).json({ message: "Verification email resent. Check your inbox." });
     }
 
     const hashed = await bcrypt.hash(password, 10);
-    const { rawToken, tokenHash } = makeToken();
 
-    const user = await User.create({
+    // EMAIL VERIFICATION (disabled): const { rawToken, tokenHash } = makeToken();
+
+    await User.create({
       username: normalizedEmail, // email doubles as the login identifier
       password: hashed,
       name: name || "",
       email: normalizedEmail,
-      isVerified: false,
-      verificationTokenHash: tokenHash,
-      verificationExpires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24h
+      isVerified: true, // EMAIL VERIFICATION (disabled): was false
+      // verificationTokenHash: tokenHash,
+      // verificationExpires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24h
     });
 
-    const verifyUrl = `${process.env.FRONTEND_URL}/verify-email/${rawToken}`;
+    // EMAIL VERIFICATION (disabled):
+    // const verifyUrl = `${process.env.FRONTEND_URL}/verify-email/${rawToken}`;
+    // try {
+    //   await sendVerificationEmail(normalizedEmail, verifyUrl);
+    // } catch (mailErr) {
+    //   // Don't leave an unverifiable account behind if the email never sent
+    //   await User.deleteOne({ _id: user._id });
+    //   console.error("Failed to send verification email:", mailErr.message);
+    //   return res.status(502).json({ message: "Could not send confirmation email. Please try again." });
+    // }
 
-    try {
-      await sendVerificationEmail(normalizedEmail, verifyUrl);
-    } catch (mailErr) {
-      // Don't leave an unverifiable account behind if the email never sent
-      await User.deleteOne({ _id: user._id });
-      console.error("Failed to send verification email:", mailErr.message);
-      return res.status(502).json({ message: "Could not send confirmation email. Please try again." });
-    }
-
-    res.status(201).json({
-      message: "Account created. Check your email to confirm your address before logging in.",
-    });
+    res.status(201).json({ message: "Account created." });
+    // EMAIL VERIFICATION (disabled): message: "Account created. Check your email to confirm your address before logging in."
   } catch (err) {
     res.status(500).json({ message: "Signup failed.", error: err.message });
   }
 });
 
-// GET /api/auth/verify-email/:token
-router.get("/verify-email/:token", async (req, res) => {
-  try {
-    const { token } = req.params;
-    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+// // GET /api/auth/verify-email/:token
+// EMAIL VERIFICATION (disabled)
+// router.get("/verify-email/:token", async (req, res) => {
+//   try {
+//     const { token } = req.params;
+//     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
-    const user = await User.findOne({ verificationTokenHash: tokenHash });
+//     const user = await User.findOne({ verificationTokenHash: tokenHash });
 
-    if (!user) {
-      return res.status(400).json({ message: "Verification link is invalid or has expired." });
-    }
+//     if (!user) {
+//       return res.status(400).json({ message: "Verification link is invalid or has expired." });
+//     }
 
-    if (!user.isVerified) {
-      if (user.verificationExpires < new Date()) {
-        return res.status(400).json({ message: "Verification link is invalid or has expired." });
-      }
-      user.isVerified = true;
-      await user.save();
-    }
-    // If already verified (e.g. an email scanner or a duplicate click consumed
-    // it first), fall through and log them in anyway instead of erroring.
+//     if (!user.isVerified) {
+//       if (user.verificationExpires < new Date()) {
+//         return res.status(400).json({ message: "Verification link is invalid or has expired." });
+//       }
+//       user.isVerified = true;
+//       await user.save();
+//     }
+//     // If already verified (e.g. an email scanner or a duplicate click consumed
+//     // it first), fall through and log them in anyway instead of erroring.
 
-    const jwtToken = signToken(user);
-    res.json({ token: jwtToken, user: publicUser(user) });
-  } catch (err) {
-    res.status(500).json({ message: "Could not verify email.", error: err.message });
-  }
-});
+//     const jwtToken = signToken(user);
+//     res.json({ token: jwtToken, user: publicUser(user) });
+//   } catch (err) {
+//     res.status(500).json({ message: "Could not verify email.", error: err.message });
+//   }
+// });
 
-// POST /api/auth/resend-verification
-router.post("/resend-verification", async (req, res) => {
+// POST /api/auth/forgot-password
+router.post("/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) {
@@ -136,24 +141,62 @@ router.post("/resend-verification", async (req, res) => {
     const normalizedEmail = email.trim().toLowerCase();
     const user = await User.findOne({ email: normalizedEmail });
     const genericResponse = {
-      message: "If that account exists and isn't verified yet, a new confirmation email has been sent.",
+      message: "If that account exists, a password reset link has been sent to it.",
     };
 
-    if (!user || user.isVerified) {
-      return res.json(genericResponse);
+    if (!user) {
+      return res.json(genericResponse); // don't reveal whether the email exists
     }
 
     const { rawToken, tokenHash } = makeToken();
-    user.verificationTokenHash = tokenHash;
-    user.verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    user.resetPasswordTokenHash = tokenHash;
+    user.resetPasswordExpires = new Date(Date.now() + 30 * 60 * 1000); // 30 min
     await user.save();
 
-    const verifyUrl = `${process.env.FRONTEND_URL}/verify-email/${rawToken}`;
-    await sendVerificationEmail(normalizedEmail, verifyUrl);
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${rawToken}`;
+
+    try {
+      await sendPasswordResetEmail(normalizedEmail, resetUrl);
+    } catch (mailErr) {
+      console.error("Failed to send password reset email:", mailErr.message);
+      return res.status(502).json({ message: "Could not send reset email. Please try again." });
+    }
 
     res.json(genericResponse);
   } catch (err) {
-    res.status(500).json({ message: "Could not resend verification email.", error: err.message });
+    res.status(500).json({ message: "Could not process request.", error: err.message });
+  }
+});
+
+// POST /api/auth/reset-password
+router.post("/reset-password", async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+      return res.status(400).json({ message: "Token and new password are required." });
+    }
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters." });
+    }
+
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+    const user = await User.findOne({
+      resetPasswordTokenHash: tokenHash,
+      resetPasswordExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Reset link is invalid or has expired." });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.resetPasswordTokenHash = null;
+    user.resetPasswordExpires = null;
+    await user.save();
+
+    res.json({ message: "Password has been reset. You can now log in." });
+  } catch (err) {
+    res.status(500).json({ message: "Could not reset password.", error: err.message });
   }
 });
 
@@ -175,12 +218,13 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid username or password." });
     }
 
-    if (!user.isVerified) {
-      return res.status(403).json({
-        message: "Please verify your email before logging in.",
-        unverified: true,
-      });
-    }
+    // EMAIL VERIFICATION (disabled):
+    // if (!user.isVerified) {
+    //   return res.status(403).json({
+    //     message: "Please verify your email before logging in.",
+    //     unverified: true,
+    //   });
+    // }
 
     const token = signToken(user);
     res.json({ token, user: publicUser(user) });

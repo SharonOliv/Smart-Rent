@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, MapPin, ShieldCheck, Users, Sparkles } from "lucide-react";
-import { fetchProperties } from "../utils/api";
+import { Search, MapPin, ShieldCheck, Users, Sparkles, Home as HomeIcon } from "lucide-react";
+import { fetchProperties} from "../utils/api";
 import PropertyCard from "../components/property/PropertyCard";
 import BookingModal from "../components/property/BookingModal";
-import PinMark from "../components/ui/PinMark";
 import Button from "../components/ui/Button";
 import { useAuth } from "../context/AuthContext";
+import RentalStack from "../components/property/RentalStack";
 
 const Home = () => {
-  const [featured, setFeatured] = useState([]);
+  const [properties, setProperties] = useState([]);
   const [location, setLocation] = useState("");
   const [bookingFor, setBookingFor] = useState(null);
   const navigate = useNavigate();
@@ -17,9 +17,11 @@ const Home = () => {
 
   useEffect(() => {
     fetchProperties({ available: true })
-      .then((data) => setFeatured(data.slice(0, 3)))
-      .catch(() => setFeatured([]));
+      .then((data) => setProperties(data))
+      .catch(() => setProperties([]));
   }, []);
+
+  const featured = properties.slice(0, 3);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -41,8 +43,8 @@ const Home = () => {
         <div className="absolute inset-0 bg-blueprint-grid opacity-[0.06]" />
         <div className="relative mx-auto grid max-w-7xl gap-12 px-5 py-16 sm:px-8 sm:py-24 lg:grid-cols-2 lg:items-center">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-brass/40 bg-brass/10 px-3 py-1 font-mono text-xs uppercase tracking-wide text-[#8a5a1f]">
-              <PinMark className="h-3.5 w-3.5" strokeColor="#8a5a1f" />
+            <span className="inline-flex items-center gap-2 rounded-full border border-ink/10 bg-paper-deep px-3 py-1 font-mono text-xs uppercase tracking-wide text-ink-soft">
+              <HomeIcon size={14} />
               Listings updated daily
             </span>
             <h1 className="mt-5 font-display text-4xl font-semibold leading-[1.08] text-ink sm:text-6xl">
@@ -59,7 +61,7 @@ const Home = () => {
               className="mt-8 flex flex-col gap-2 rounded-2xl border border-ink/15 bg-paper p-2 shadow-sm sm:flex-row"
             >
               <div className="flex flex-1 items-center gap-2 px-3 py-2">
-                <MapPin size={18} className="text-brass" />
+                <MapPin size={18} className="text-blueprint" />
                 <input
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
@@ -80,22 +82,7 @@ const Home = () => {
           </div>
 
           <div className="relative hidden lg:block">
-            <div className="relative ml-auto h-[420px] w-[420px]">
-              <div className="absolute inset-0 rounded-[2rem] border border-blueprint/25 bg-blueprint-grid bg-paper-deep" />
-              <div className="absolute left-6 top-8 w-56 -rotate-3 overflow-hidden rounded-xl border-4 border-paper bg-ink/10 shadow-xl">
-                <div className="flex h-36 items-center justify-center bg-ink/5">
-                  <PinMark className="h-10 w-10 text-brass" />
-                </div>
-              </div>
-              <div className="absolute bottom-10 right-4 w-48 rotate-6 overflow-hidden rounded-xl border-4 border-paper bg-moss/10 shadow-xl">
-                <div className="flex h-32 items-center justify-center bg-moss/10">
-                  <PinMark className="h-9 w-9 text-moss" />
-                </div>
-              </div>
-              <div className="absolute right-16 top-2 rounded-full border border-brass/40 bg-paper px-3 py-1.5 font-mono text-[11px] text-[#8a5a1f] shadow">
-                ✓ Verified listing
-              </div>
-            </div>
+            <RentalStack properties={properties} />
           </div>
         </div>
       </section>
@@ -104,10 +91,10 @@ const Home = () => {
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8">
         <div className="flex items-end justify-between">
           <div>
-            <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-brass">Fresh on the market</span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">Fresh on the market</span>
             <h2 className="mt-1 font-display text-3xl font-semibold text-ink">Featured listings</h2>
           </div>
-          <Link to="/rent" className="hidden text-sm font-semibold text-blueprint hover:underline sm:block">
+          <Link to="/rent" className="hidden text-sm font-semibold text-ink-soft hover:text-ink hover:underline sm:block">
             View all listings &rarr;
           </Link>
         </div>
@@ -121,7 +108,7 @@ const Home = () => {
             ))}
           </div>
         )}
-        <Link to="/rent" className="mt-8 block text-center text-sm font-semibold text-blueprint hover:underline sm:hidden">
+        <Link to="/rent" className="mt-8 block text-center text-sm font-semibold text-ink-soft hover:text-ink hover:underline sm:hidden">
           View all listings &rarr;
         </Link>
       </section>
@@ -137,7 +124,7 @@ const Home = () => {
               { title: "Book with confidence", body: "Pick your move-in dates and book directly \u2014 no back-and-forth, no double bookings." },
             ].map((step, i) => (
               <div key={step.title} className="relative pl-10">
-                <span className="absolute left-0 top-0 font-display text-3xl font-semibold text-brass/40">
+                <span className="absolute left-0 top-0 font-display text-3xl font-semibold text-blueprint/50">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <h3 className="font-display text-xl font-semibold text-ink">{step.title}</h3>

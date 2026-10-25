@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [hasListings, setHasListings] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -49,24 +50,41 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const signup = useCallback(async (payload) => {
-    // Account is unverified until the email link is clicked — no token yet.
+    // EMAIL VERIFICATION (disabled): account was unverified until the email link was clicked, so no token was returned.
+    // Now the account is active immediately; Signup.jsx calls login() right after.
     const data = await api.signup(payload);
     return data; // { message: "..." }
   }, []);
 
-  const verifyEmail = useCallback(async (verifyToken) => {
-    const { token: newToken, user: newUser } = await api.verifyEmail(verifyToken);
-    localStorage.setItem(TOKEN_KEY, newToken);
-    setToken(newToken);
-    setUser(newUser);
-    return newUser;
-  }, []);
+  // EMAIL VERIFICATION (disabled)
+  // const verifyEmail = useCallback(async (verifyToken) => {
+  //   const { token: newToken, user: newUser } = await api.verifyEmail(verifyToken);
+  //   localStorage.setItem(TOKEN_KEY, newToken);
+  //   setToken(newToken);
+  //   setUser(newUser);
+  //   return newUser;
+  // }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
     setToken(null);
     setUser(null);
   }, []);
+
+    const refreshListings = useCallback(async () => {
+    try {
+      const list = await api.fetchMyProperties();
+      setHasListings(list.length > 0);
+    } catch {
+      // keep the last known value
+    }
+  }, []);
+
+  const userId = user?.id;
+  useEffect(() => {
+    if (userId) refreshListings();
+    else setHasListings(false);
+  }, [userId, refreshListings]);
 
   const refreshUser = useCallback(async () => {
     if (!token) return null;
@@ -84,10 +102,12 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         signup,
-        verifyEmail,
+        // verifyEmail,   // EMAIL VERIFICATION (disabled)
         logout,
         refreshUser,
         setUser,
+        hasListings,
+        refreshListings
       }}
     >
       {children}

@@ -68,3 +68,22 @@ export async function sendVerificationEmail(toEmail, verificationLink) {
     `,
   });
 }
+
+export const sendPasswordResetEmail = async (to, resetUrl) => {
+  await transporter.sendMail({
+    from: `"Smart Rent" <${process.env.EMAIL_USER}>`,
+    to,
+    subject: "Reset your Smart Rent password",
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
+        <h2>Reset your password</h2>
+        <p>We received a request to reset your Smart Rent password. Click the button below to choose a new one. This link expires in 30 minutes.</p>
+        <p style="text-align:center; margin: 24px 0;">
+          <a href="${resetUrl}" style="background:#C2873E;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;">Reset password</a>
+        </p>
+        <p>Or paste this into your browser:<br>${resetUrl}</p>
+        <p>If you didn't request this, you can safely ignore this email.</p>
+      </div>
+    `,
+  });
+};

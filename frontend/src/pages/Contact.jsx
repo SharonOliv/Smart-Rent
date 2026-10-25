@@ -14,7 +14,7 @@ const Contact = () => {
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-16 sm:px-8">
-      <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-brass">Contact</span>
+      <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">Contact</span>
       <h1 className="mt-1 font-display text-4xl font-semibold text-ink">Get in touch</h1>
       <p className="mt-3 max-w-xl text-ink-soft">
         Questions, feedback, or partnership ideas &mdash; we'd love to hear from you.
@@ -23,24 +23,24 @@ const Contact = () => {
       <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1.3fr]">
         <div className="space-y-5">
           <div className="flex items-start gap-3">
-            <Mail size={18} className="mt-0.5 text-brass" />
+            <Mail size={18} className="mt-0.5 text-blueprint" />
             <div>
               <p className="font-semibold text-ink">Email</p>
               <a href="mailto:support@smartrent.com" className="text-sm text-ink-soft hover:text-ink">support@smartrent.com</a>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <Phone size={18} className="mt-0.5 text-brass" />
+            <Phone size={18} className="mt-0.5 text-blueprint" />
             <div>
               <p className="font-semibold text-ink">Phone</p>
-              <a href="tel:+18005557368" className="text-sm text-ink-soft hover:text-ink">+1-800-555-RENT</a>
+              <a href="tel:+919876543210" className="text-sm text-ink-soft hover:text-ink">+91 98765 43210</a>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <MapPin size={18} className="mt-0.5 text-brass" />
+            <MapPin size={18} className="mt-0.5 text-blueprint" />
             <div>
               <p className="font-semibold text-ink">Office</p>
-              <p className="text-sm text-ink-soft">123 Rent St., Apartment City</p>
+              <p className="text-sm text-ink-soft">Benz Circle, Vijayawada, Andhra Pradesh</p>
             </div>
           </div>
         </div>

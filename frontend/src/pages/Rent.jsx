@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { SlidersHorizontal, Users } from "lucide-react";
+import { SlidersHorizontal, Users, Home } from "lucide-react";
 import { fetchProperties } from "../utils/api";
 import { useAuth } from "../context/AuthContext";
 import PropertyCard from "../components/property/PropertyCard";
@@ -8,7 +8,7 @@ import BookingModal from "../components/property/BookingModal";
 import { Alert } from "../components/ui/Feedback";
 import Button from "../components/ui/Button";
 import { inputClasses } from "../components/ui/Field";
-import PinMark from "../components/ui/PinMark";
+// remove: import PinMark from "../components/ui/PinMark";
 
 const Rent = () => {
   const [searchParams] = useSearchParams();
@@ -87,7 +87,7 @@ const Rent = () => {
     <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-brass">Browse</span>
+          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-soft">Browse</span>
           <h1 className="mt-1 font-display text-4xl font-semibold text-ink">Available rentals</h1>
         </div>
         <Button variant="outline" onClick={handleRoommateClick}>
@@ -109,7 +109,7 @@ const Rent = () => {
         <input
           name="minPrice"
           type="number"
-          placeholder="Min $/mo"
+          placeholder="Min ₹/mo"
           className={inputClasses}
           value={filters.minPrice}
           onChange={handleFilterChange}
@@ -117,7 +117,7 @@ const Rent = () => {
         <input
           name="maxPrice"
           type="number"
-          placeholder="Max $/mo"
+          placeholder="Max ₹/mo"
           className={inputClasses}
           value={filters.maxPrice}
           onChange={handleFilterChange}
@@ -132,11 +132,15 @@ const Rent = () => {
 
       {loading ? (
         <div className="mt-16 flex justify-center">
-          <PinMark className="h-10 w-10 animate-pulse" strokeColor="#C2873E" />
+          {/* <PinMark className="h-10 w-10 animate-pulse" strokeColor="#C2873E" /> */}
+          // loading state
+          <Home size={40} className="animate-pulse text-blueprint" />
         </div>
       ) : houses.length === 0 ? (
         <div className="mt-16 text-center text-ink-soft">
-          <PinMark className="mx-auto h-10 w-10 text-ink/15" />
+          {/* <PinMark className="mx-auto h-10 w-10 text-ink/15" /> */}
+          {/* // empty state */}
+          <Home size={40} className="mx-auto text-ink/20" />
           <p className="mt-3">No listings match your search yet.</p>
         </div>
       ) : (

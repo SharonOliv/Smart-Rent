@@ -8,12 +8,12 @@ const values = [
   { icon: Users, title: "Roommate matching", body: "A short personality quiz helps connect tenants who are actually compatible." },
 ];
 
-const team = [
-  { name: "Kushala", role: "Product" },
-  { name: "Olivia", role: "Engineering" },
-  { name: "Soumika", role: "Design" },
-  { name: "Yasaswini", role: "Marketing" },
-];
+// const team = [
+//   { name: "Kushala", role: "Product" },
+//   { name: "Olivia", role: "Engineering" },
+//   { name: "Soumika", role: "Design" },
+//   { name: "Yasaswini", role: "Marketing" },
+// ];
 
 const About = () => (
   <div className="mx-auto max-w-5xl px-5 py-16 sm:px-8">
@@ -38,7 +38,7 @@ const About = () => (
       ))}
     </div>
 
-    <div className="mt-16">
+    {/* <div className="mt-16">
       <h2 className="font-display text-2xl font-semibold text-ink">Meet the team</h2>
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {team.map((person) => (
@@ -51,7 +51,7 @@ const About = () => (
           </div>
         ))}
       </div>
-    </div>
+    </div> */}
 
     <div className="mt-16 flex items-center gap-3 rounded-2xl border border-brass/30 bg-brass/10 p-6">
       <PinMark className="h-8 w-8 shrink-0" strokeColor="#8a5a1f" />

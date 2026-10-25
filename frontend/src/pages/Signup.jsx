@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Alert } from "../components/ui/Feedback";
 import Button from "../components/ui/Button";
@@ -10,8 +10,10 @@ const Signup = () => {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [sent, setSent] = useState(false);
-  const { signup } = useAuth();
+  // EMAIL VERIFICATION (disabled): re-enable together with the "Check your inbox" block below
+  // const [sent, setSent] = useState(false);
+  const { signup, login } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,7 +26,13 @@ const Signup = () => {
     setSubmitting(true);
     try {
       await signup(form);
-      setSent(true); // don't navigate — account isn't active until email is verified
+      // EMAIL VERIFICATION (disabled):
+      // setSent(true); // don't navigate — account isn't active until email is verified
+
+      // Account is active immediately now, so log in and go straight in
+      await login(form.email.trim(), form.password);
+      //navigate("/", { replace: true });
+      navigate("/personality-form", { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || "Error signing up. Please try again.");
     } finally {
@@ -32,23 +40,24 @@ const Signup = () => {
     }
   };
 
-  if (sent) {
-    return (
-      <div className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center px-5 py-16 text-center sm:px-0">
-        <PinMark className="mx-auto h-10 w-10" strokeColor="#16232B" fillColor="#C2873E" />
-        <h1 className="mt-4 font-display text-2xl font-semibold text-ink">Check your inbox</h1>
-        <p className="mt-2 text-sm text-ink-soft">
-          We sent a confirmation link to <span className="font-medium text-ink">{form.email}</span>.
-          Click it to verify your email and activate your account.
-        </p>
-      </div>
-    );
-  }
+  // EMAIL VERIFICATION (disabled): "Check your inbox" screen
+  // if (sent) {
+  //   return (
+  //     <div className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center px-5 py-16 text-center sm:px-0">
+  //       <PinMark className="mx-auto h-10 w-10" strokeColor="#384959" fillColor="#88BDF2" />
+  //       <h1 className="mt-4 font-display text-2xl font-semibold text-ink">Check your inbox</h1>
+  //       <p className="mt-2 text-sm text-ink-soft">
+  //         We sent a confirmation link to <span className="font-medium text-ink">{form.email}</span>.
+  //         Click it to verify your email and activate your account.
+  //       </p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center px-5 py-16 sm:px-0">
       <div className="mb-8 text-center">
-        <PinMark className="mx-auto h-10 w-10" strokeColor="#16232B" fillColor="#C2873E" />
+        <PinMark className="mx-auto h-10 w-10" strokeColor="#384959" fillColor="#88BDF2" />
         <h1 className="mt-4 font-display text-3xl font-semibold text-ink">Create your account</h1>
         <p className="mt-1 text-sm text-ink-soft">Just the basics — everything else can wait for your profile.</p>
       </div>
@@ -83,10 +92,11 @@ const Signup = () => {
             />
           </Field>
           <Button type="submit" variant="primary" className="w-full" disabled={submitting}>
-            {submitting ? "Sending confirmation..." : "Create account"}
+            {/* EMAIL VERIFICATION (disabled): {submitting ? "Sending confirmation..." : "Create account"} */}
+            {submitting ? "Creating account..." : "Create account"}
           </Button>
           <p className="text-center text-sm text-ink-soft">
-            Already have an account? <Link to="/login" className="text-blueprint hover:underline">Log in</Link>
+            Already have an account? <Link to="/login" className="text-ink-soft hover:text-ink underline">Log in</Link>
           </p>
         </form>
       </div>
