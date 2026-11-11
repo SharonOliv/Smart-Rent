@@ -65,4 +65,9 @@ export const fetchConnections = () => api.get("/connections/accepted").then((r) 
 export const respondToRequest = (id, action) =>
   api.put(`/connections/${id}`, { action }).then((r) => r.data);
 
+export const sendChatOption = async (optionId) => {
+  const { data } = await api.post("/chat/option", { optionId });
+  return data;
+};
+
 export default api;
